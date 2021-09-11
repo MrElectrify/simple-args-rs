@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use multimap::MultiMap;
 
 /// Parsed Arguments
@@ -16,15 +14,17 @@ impl Arguments {
     /// # Arguments
     ///
     /// `args`: The arguments
-    pub fn parse<'a>(args: Cow<'a, [&'a str]>) -> Arguments {
+    pub fn parse<S: AsRef<str>>(args: &[S]) -> Arguments {
         let mut arg_map = MultiMap::new();
-        for (&key, &val) in args
-            .iter()
-            .zip(args.iter().skip(1).chain(std::iter::once(&"")))
-        {
-            if key.starts_with('-') {
+        for (key, val) in args.iter().map(|s| s.as_ref()).zip(
+            args.iter()
+                .map(|s| s.as_ref())
+                .skip(1)
+                .chain(std::iter::once("")),
+        ) {
+            if let Some(stripped) = key.strip_prefix('-') {
                 arg_map.insert(
-                    key[1..].to_string(),
+                    stripped.to_string(),
                     if val.is_empty() || val.starts_with('-') {
                         None
                     } else {
@@ -90,25 +90,24 @@ impl Arguments {
 #[cfg(test)]
 mod test {
     use super::Arguments;
-    use std::borrow::Cow;
 
     #[test]
     fn empty() {
-        let args = Arguments::parse(Cow::Borrowed(&[]));
+        let args = Arguments::parse::<String>(&[]);
         assert!(args.is_empty());
         assert_eq!(args.len(), 0);
     }
 
     #[test]
     fn no_arg() {
-        let args = Arguments::parse(Cow::Borrowed(&["arg"]));
+        let args = Arguments::parse(&["arg"]);
         assert!(args.is_empty());
         assert_eq!(args.len(), 0);
     }
 
     #[test]
     fn one_empty() {
-        let args = Arguments::parse(Cow::Borrowed(&["-key"]));
+        let args = Arguments::parse(&["-key"]);
         assert!(!args.is_empty());
         assert_eq!(args.len(), 1);
         assert!(args.contains("key"));
@@ -119,7 +118,7 @@ mod test {
 
     #[test]
     fn one_key() {
-        let args = Arguments::parse(Cow::Borrowed(&["-key", "val"]));
+        let args = Arguments::parse(&["-key", "val"]);
         assert!(!args.is_empty());
         assert_eq!(args.len(), 1);
         assert!(args.contains("key"));
@@ -131,33 +130,39 @@ mod test {
 
     #[test]
     fn one_key_repeated() {
-        let args = Arguments::parse(Cow::Borrowed(&["-key", "val", "-key", "val2"]));
+        let args = Arguments::parse(&["-key", "val", "-key", "val2"]);
         assert!(!args.is_empty());
         assert_eq!(args.len(), 1);
         assert!(args.contains("key"));
         assert!(args.contains_val("key"));
         assert!(args.get("key").is_some());
         assert_eq!(args.get("key").unwrap().as_ref().unwrap(), "val");
-        assert_eq!(args.get_vec("key").unwrap(), &vec!(Some("val".to_string()), Some("val2".to_string())));
+        assert_eq!(
+            args.get_vec("key").unwrap(),
+            &vec!(Some("val".to_string()), Some("val2".to_string()))
+        );
         assert_eq!(args.get_vec("key").unwrap().len(), 2);
     }
 
     #[test]
     fn one_key_cut_short() {
-        let args = Arguments::parse(Cow::Borrowed(&["-key", "-key", "val2"]));
+        let args = Arguments::parse(&["-key", "-key", "val2"]);
         assert!(!args.is_empty());
         assert_eq!(args.len(), 1);
         assert!(args.contains("key"));
         assert!(args.contains_val("key"));
         assert!(args.get("key").is_some());
         assert_eq!(args.get("key").unwrap(), &None);
-        assert_eq!(args.get_vec("key").unwrap(), &vec!(None, Some("val2".to_string())));
+        assert_eq!(
+            args.get_vec("key").unwrap(),
+            &vec!(None, Some("val2".to_string()))
+        );
         assert_eq!(args.get_vec("key").unwrap().len(), 2);
     }
 
     #[test]
     fn two_keys() {
-        let args = Arguments::parse(Cow::Borrowed(&["-key", "val", "-key2", "val2"]));
+        let args = Arguments::parse(&["-key", "val", "-key2", "val2"]);
         assert!(!args.is_empty());
         assert_eq!(args.len(), 2);
         assert!(args.contains("key"));
@@ -174,7 +179,7 @@ mod test {
 
     #[test]
     fn two_keys_cut_short() {
-        let args = Arguments::parse(Cow::Borrowed(&["-key", "-key2", "val2"]));
+        let args = Arguments::parse(&["-key", "-key2", "val2"]);
         assert!(!args.is_empty());
         assert_eq!(args.len(), 2);
         assert!(args.contains("key"));
@@ -187,5 +192,18 @@ mod test {
         assert_eq!(args.get("key2").unwrap().as_ref().unwrap(), "val2");
         assert_eq!(args.get_vec("key").unwrap().len(), 1);
         assert_eq!(args.get_vec("key2").unwrap().len(), 1);
+    }
+
+    #[test]
+    fn ergonomics() {
+        let sys_args: Vec<String> = vec!["-key".into(), "val".into()];
+        let args = Arguments::parse(&sys_args);
+        assert!(!args.is_empty());
+        assert_eq!(args.len(), 1);
+        assert!(args.contains("key"));
+        assert!(args.contains_val("key"));
+        assert!(args.get("key").is_some());
+        assert_eq!(args.get("key").unwrap().as_ref().unwrap(), "val");
+        assert_eq!(args.get_vec("key").unwrap().len(), 1);
     }
 }
