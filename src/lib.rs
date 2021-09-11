@@ -8,10 +8,10 @@ pub struct Arguments {
 }
 
 impl Arguments {
-    /// Parse arguments. This cannot fail. Flags are simply
-    /// denoted by a single `-` followed by the flag,
+    /// Parse arguments. This cannot fail. Arguments are simply
+    /// denoted by a single `-` followed by the argument,
     /// and the value is immediately after. Multiple instances
-    /// can be contained, and flags can contain no value
+    /// can be contained, and arguments can contain no value
     ///
     /// # Arguments
     ///
