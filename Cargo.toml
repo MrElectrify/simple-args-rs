@@ -2,13 +2,13 @@
 name = "simple-args"
 authors = ["Andrew Buck"]
 description = "A very simple argument parser"
-documentation = "https://docs.rs/crate/mmap-loader"
+documentation = "https://docs.rs/crate/simple-args"
 version = "0.1.0"
 edition = "2018"
 license-file = "LICENSE"
 readme = "README.md"
-repository = "https://github.com/MrElectrify/mmap-loader-rs"
-keywords = ["pe", "map", "manual-map"]
+repository = "https://github.com/MrElectrify/simple-args-rs"
+keywords = ["argument", "arg", "parser"]
 
 [dependencies]
 multimap = "0.8"
