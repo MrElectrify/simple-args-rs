@@ -1,0 +1,13 @@
+[package]
+name = "simple-args"
+authors = ["Andrew Buck"]
+description = "A very simple argument parser"
+documentation = "https://docs.rs/crate/mmap-loader"
+version = "0.1.0"
+edition = "2018"
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/MrElectrify/mmap-loader-rs"
+keywords = ["pe", "map", "manual-map"]
+
+[dependencies]
