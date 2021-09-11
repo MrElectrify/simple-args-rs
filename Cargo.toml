@@ -11,3 +11,4 @@ repository = "https://github.com/MrElectrify/mmap-loader-rs"
 keywords = ["pe", "map", "manual-map"]
 
 [dependencies]
+multimap = "0.8"
