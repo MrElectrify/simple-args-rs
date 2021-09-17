@@ -68,8 +68,8 @@ impl Arguments {
     /// # Arguments
     ///
     /// `key`: The key to fetch
-    pub fn get(&self, key: &str) -> Option<&Option<String>> {
-        self.arg_map.get(key)
+    pub fn get(&self, key: &str) -> Option<Option<&str>> {
+        Some(Some(self.arg_map.get(key)?.as_ref()?))
     }
 
     /// Gets all values with the given key
@@ -124,7 +124,7 @@ mod test {
         assert!(args.contains("key"));
         assert!(args.contains_val("key"));
         assert!(args.get("key").is_some());
-        assert_eq!(args.get("key").unwrap().as_ref().unwrap(), "val");
+        assert_eq!(args.get("key").unwrap().unwrap(), "val");
         assert_eq!(args.get_vec("key").unwrap().len(), 1);
     }
 
@@ -136,7 +136,7 @@ mod test {
         assert!(args.contains("key"));
         assert!(args.contains_val("key"));
         assert!(args.get("key").is_some());
-        assert_eq!(args.get("key").unwrap().as_ref().unwrap(), "val");
+        assert_eq!(args.get("key").unwrap().unwrap(), "val");
         assert_eq!(
             args.get_vec("key").unwrap(),
             &vec!(Some("val".to_string()), Some("val2".to_string()))
@@ -152,7 +152,7 @@ mod test {
         assert!(args.contains("key"));
         assert!(args.contains_val("key"));
         assert!(args.get("key").is_some());
-        assert_eq!(args.get("key").unwrap(), &None);
+        assert_eq!(args.get("key").unwrap(), None);
         assert_eq!(
             args.get_vec("key").unwrap(),
             &vec!(None, Some("val2".to_string()))
@@ -171,8 +171,8 @@ mod test {
         assert!(args.contains_val("key2"));
         assert!(args.get("key").is_some());
         assert!(args.get("key2").is_some());
-        assert_eq!(args.get("key").unwrap().as_ref().unwrap(), "val");
-        assert_eq!(args.get("key2").unwrap().as_ref().unwrap(), "val2");
+        assert_eq!(args.get("key").unwrap().unwrap(), "val");
+        assert_eq!(args.get("key2").unwrap().unwrap(), "val2");
         assert_eq!(args.get_vec("key").unwrap().len(), 1);
         assert_eq!(args.get_vec("key2").unwrap().len(), 1);
     }
@@ -188,8 +188,8 @@ mod test {
         assert!(args.contains_val("key2"));
         assert!(args.get("key").is_some());
         assert!(args.get("key2").is_some());
-        assert_eq!(args.get("key").unwrap(), &None);
-        assert_eq!(args.get("key2").unwrap().as_ref().unwrap(), "val2");
+        assert_eq!(args.get("key").unwrap(), None);
+        assert_eq!(args.get("key2").unwrap().unwrap(), "val2");
         assert_eq!(args.get_vec("key").unwrap().len(), 1);
         assert_eq!(args.get_vec("key2").unwrap().len(), 1);
     }
@@ -203,7 +203,7 @@ mod test {
         assert!(args.contains("key"));
         assert!(args.contains_val("key"));
         assert!(args.get("key").is_some());
-        assert_eq!(args.get("key").unwrap().as_ref().unwrap(), "val");
+        assert_eq!(args.get("key").unwrap().unwrap(), "val");
         assert_eq!(args.get_vec("key").unwrap().len(), 1);
     }
 }
