@@ -69,7 +69,7 @@ impl Arguments {
     ///
     /// `key`: The key to fetch
     pub fn get(&self, key: &str) -> Option<Option<&str>> {
-        Some(Some(self.arg_map.get(key)?.as_ref()?))
+        Some(self.arg_map.get(key)?.as_ref().map(String::as_ref))
     }
 
     /// Gets all values with the given key
